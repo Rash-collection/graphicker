@@ -5,6 +5,7 @@
 
 package graphs;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
@@ -45,7 +46,7 @@ public class Front {
             }
         });
         this.panel.addMouseWheelListener((MouseWheelEvent e) -> {
-            Front.this.delta += (e.getPreciseWheelRotation() * 10D);
+            Front.this.delta += (e.getPreciseWheelRotation() * Front.this.scrlSpeed);
             Front.this.panel.repaint();
             
         });
@@ -66,20 +67,38 @@ public class Front {
     private void render(Graphics2D grr){
         final int len = list.length, zis = 64;
         final var siz = this.panel.getSize();
-        final int cols = Math.floorDiv(siz.width, zis),
-                rows = Math.floorDiv(siz.height, zis) + 1;
-        if(-this.delta >= siz.height || this.delta - zis >= 0) {
-            System.out.println("Vanished XD");
-            return;
-        }
-        for(int i = 0; i < len; i++){
-            final int xx = (i%cols) * zis,
-                    yy = ((i/cols)%rows) * zis;
-            // skip any image outside panel bounds
-            if (xx + zis >= siz.width || yy + zis >= siz.height) continue;
+        final int cols = Math.floorDiv(siz.width, zis);
+        // doesn't need the rows anymore!
+//                , rows = Math.floorDiv(siz.height, zis) + 1;
+        final int firstRow = (int)(this.delta / zis);
+        final int lastRow  = (int)((this.delta + siz.height) / zis);
+
+        final int first = Math.max(0, firstRow * cols);
+        final int last  = Math.min(len, (lastRow + 1) * cols);
+            if(-this.delta >= siz.height) {
+                System.out.println("Vanished XD");
+                this.delta += this.scrlSpeed;
+                return;
+            }
+            else if((last/cols * zis) - this.delta <= -zis) {
+                System.out.println("Vanished XD");
+                this.delta -= this.scrlSpeed;
+                return;
+            }else System.out.println("Drawing.");
+        for(int i = first; i < last; i++){
+            final int   xx = (i%cols) * zis,
+                        yy = (i/cols) * zis;
             grr.drawImage(this.list[i], xx, (int)(yy - this.delta), zis, zis, null);
         }
+        final int scrz = 12, scrc = scrz/2, scrx = siz.width - scrz, scry = -(int)Math.floor(this.delta);
+        grr.setColor(Color.BLACK);
+        grr.fillRect(scrx, 0, scrz, siz.height);
+        grr.setColor(Color.WHITE);
+        grr.fillRect(scrx + 1, +1, scrz - 2, siz.height - 2);
+        grr.setColor(Color.LIGHT_GRAY);
+        grr.fillRoundRect(scrx, scry, scrz, scrz, scrc, scrc);
     }
+    private final int scrlSpeed = 10;
     private double delta = 0;
     private BufferedImage[] list;
     private JFrame frame;
