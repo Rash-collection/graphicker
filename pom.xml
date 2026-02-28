@@ -11,4 +11,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>24</maven.compiler.release>
     </properties>
+    <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/Rash-collection/graphicker</url>
+    </repository>
+  </distributionManagement>
 </project>
